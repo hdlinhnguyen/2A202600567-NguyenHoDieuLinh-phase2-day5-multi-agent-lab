@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent vs Single-Agent Benchmark Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --secondary: #10b981;
+            --warning: #f59e0b;
+            --border-color: #334155;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 40%), radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.08), transparent 40%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+        @media(min-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .card-baseline .card-title {
+            color: var(--primary);
+        }
+        .card-multi .card-title {
+            color: var(--secondary);
+        }
+        .metric-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .metric-box {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+        .metric-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+        .metric-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        .table-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 35px;
+            overflow-x: auto;
+        }
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th, td {
+            padding: 14px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+        th {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .charts-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 35px;
+        }
+        .bar-group {
+            margin-bottom: 20px;
+        }
+        .bar-group:last-child {
+            margin-bottom: 0;
+        }
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+        .bar-outer {
+            background-color: rgba(15, 23, 42, 0.5);
+            border-radius: 4px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .bar-inner {
+            height: 100%;
+            border-radius: 4px;
+        }
+        .bar-blue { background: linear-gradient(to right, #3b82f6, #60a5fa); }
+        .bar-green { background: linear-gradient(to right, #10b981, #34d399); }
+        .findings-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 35px;
+        }
+        .findings-title {
+            color: var(--warning);
+        }
+        .finding-item {
+            margin-bottom: 15px;
+        }
+        .finding-item:last-child {
+            margin-bottom: 0;
+        }
+        .finding-heading {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .finding-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+        .output-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 35px;
+        }
+        .output-header {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        .output-box {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Multi-Agent vs. Single-Agent</h1>
+            <div class="subtitle">System Performance and Token Benchmark Dashboard</div>
+        </header>
+
+        <div class="grid">
+            <div class="card card-baseline">
+                <div class="card-title">Single-Agent Baseline</div>
+                <div class="metric-row">
+                    <div class="metric-box">
+                        <div class="metric-label">Latency</div>
+                        <div class="metric-value" style="color: #60a5fa;">12.20s</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Total Cost</div>
+                        <div class="metric-value">$0.00009</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Total Tokens</div>
+                        <div class="metric-value">220</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Citations</div>
+                        <div class="metric-value">0.0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-multi">
+                <div class="card-title">Multi-Agent Workflow</div>
+                <div class="metric-row">
+                    <div class="metric-box">
+                        <div class="metric-label">Latency</div>
+                        <div class="metric-value" style="color: #34d399;">97.80s</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Total Cost</div>
+                        <div class="metric-value">$0.00099</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Total Tokens</div>
+                        <div class="metric-value">3,905</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">Citations</div>
+                        <div class="metric-value">8.7%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-card">
+            <div class="section-title">Visual Comparison Analysis</div>
+            
+            <div class="bar-group">
+                <div class="bar-label">
+                    <span>Latency (s) - Lower is Better</span>
+                    <span>Single (12.2s) vs Multi (97.8s)</span>
+                </div>
+                <div class="bar-outer">
+                    <div class="bar-inner bar-blue" style="width: 12.474652791597675%;"></div>
+                </div>
+                <div class="bar-outer" style="margin-top: 5px;">
+                    <div class="bar-inner bar-green" style="width: 100.0%;"></div>
+                </div>
+            </div>
+
+            <div class="bar-group">
+                <div class="bar-label">
+                    <span>Total Tokens - Lower is Better</span>
+                    <span>Single (220) vs Multi (3,905)</span>
+                </div>
+                <div class="bar-outer">
+                    <div class="bar-inner bar-blue" style="width: 5.633802816901409%;"></div>
+                </div>
+                <div class="bar-outer" style="margin-top: 5px;">
+                    <div class="bar-inner bar-green" style="width: 100.0%;"></div>
+                </div>
+            </div>
+
+            <div class="bar-group">
+                <div class="bar-label">
+                    <span>Quality Score (0-10) - Higher is Better</span>
+                    <span>Single (9.2) vs Multi (9.2)</span>
+                </div>
+                <div class="bar-outer">
+                    <div class="bar-inner bar-blue" style="width: 92.0%;"></div>
+                </div>
+                <div class="bar-outer" style="margin-top: 5px;">
+                    <div class="bar-inner bar-green" style="width: 92.0%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="section-title">Detailed Metrics Matrix</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Run Profile</th>
+                        <th>Latency</th>
+                        <th>Input Tokens</th>
+                        <th>Output Tokens</th>
+                        <th>Total Tokens</th>
+                        <th>Est. Cost</th>
+                        <th>Quality</th>
+                        <th>Citations</th>
+                        <th>Execution Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+        <tr>
+            <td style="font-weight: 500;">Single-Agent Baseline</td>
+            <td>12.20s</td>
+            <td>100</td>
+            <td>120</td>
+            <td>220</td>
+            <td style="font-weight: 600; color: #34d399;">$0.00009</td>
+            <td>9.2/10.0</td>
+            <td>0.0%</td>
+            <td style="color: #94a3b8; font-size: 0.9rem;">Completed in 0 routing iterations.</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 500;">Multi-Agent Workflow</td>
+            <td>97.80s</td>
+            <td>3,000</td>
+            <td>905</td>
+            <td>3,905</td>
+            <td style="font-weight: 600; color: #34d399;">$0.00099</td>
+            <td>9.2/10.0</td>
+            <td>8.7%</td>
+            <td style="color: #94a3b8; font-size: 0.9rem;">Completed in 5 routing iterations.</td>
+        </tr>
+        
+                </tbody>
+            </table>
+        </div>
+
+        <div class="findings-card">
+            <div class="section-title findings-title">Exit Ticket & Failure Modes (Lab Guide / README Deliverables)</div>
+            
+            <div class="finding-item">
+                <div class="finding-heading" style="color: #60a5fa;">Exit Ticket 1: Case nào nên dùng multi-agent?</div>
+                <p class="finding-text">
+                    Nên dùng multi-agent cho các tác vụ nghiên cứu chuyên sâu, phức tạp và đòi hỏi tính chính xác cao. Việc phân tách vai trò (Researcher thu thập nguồn tin, Analyst phân tích dữ liệu, Critic đối chiếu tính đúng đắn) giúp giảm thiểu hiện tượng ảo giác (hallucinations), tăng độ phủ trích dẫn và đảm bảo nội dung đáp ứng toàn bộ các tiêu chí ràng buộc.
+                </p>
+            </div>
+
+            <div class="finding-item">
+                <div class="finding-heading" style="color: #60a5fa;">Exit Ticket 2: Case nào không nên dùng multi-agent?</div>
+                <p class="finding-text">
+                    Không nên dùng cho các tác vụ đơn giản, quen thuộc hoặc đòi hỏi thời gian phản hồi cực nhanh (latency-sensitive). Việc gọi tuần tự qua nhiều agent sẽ nhân số lượng token tiêu thụ lên gấp 10-20 lần và gia tăng thời gian chờ đáng kể, làm mất đi tính kinh tế.
+                </p>
+            </div>
+
+            <div class="finding-item">
+                <div class="finding-heading" style="color: #ef4444;">Failure Mode 1: Context drift during state handoffs</div>
+                <p class="finding-text">
+                    <strong>Khắc phục:</strong> Thiết lập cấu trúc Pydantic schema đồng nhất cho ResearchState, lưu trữ toàn bộ lịch sử trích dẫn, ghi chép phân tích và phản hồi của Critic. Việc này giúp các agent kế thừa trọn vẹn thông tin mà không cần truyền lại toàn bộ lịch sử hội thoại thô.
+                </p>
+            </div>
+
+            <div class="finding-item">
+                <div class="finding-heading" style="color: #ef4444;">Failure Mode 2: Rate limiting or API quota issues</div>
+                <p class="finding-text">
+                    <strong>Khắc phục:</strong> Tích hợp cơ chế tự động thử lại (Retry) với độ trễ lũy thừa (wait_exponential) bằng thư viện tenacity trong LLMClient. Đồng thời, bổ sung cơ chế fallback thông minh tự động chuyển sang local mock response khi API bị lỗi 429 hoặc hết hạn mức sử dụng.
+                </p>
+            </div>
+        </div>
+
+        <div class="output-container">
+            <div class="section-title">Generated Outputs Comparison</div>
+            
+            <div class="bar-group">
+                <div class="output-header" style="color: var(--primary);">Single-Agent Baseline Output</div>
+                <div class="output-box">## Core Question
+Do multi-agent LLM systems outperform single-agent systems on complex tasks?
+
+## Summary of Findings
+Multi-agent systems decompose tasks into separate roles, improving structure and citation coverage. However, this comes at a substantial token (4x to 10x) and latency cost. In budget-equalized tests, single agents with CoT loops perform similarly to multi-agent teams on reasoning tasks.</div>
+            </div>
+
+            <div class="bar-group" style="margin-top: 25px;">
+                <div class="output-header" style="color: var(--secondary);">Multi-Agent Workflow Output</div>
+                <div class="output-box">## Core Question
+Do multi-agent LLM systems actually outperform single-agent systems on complex tasks?
+
+## Main Positions
+1. **Agentic Supremacy View**: Task decomposition and role isolation (e.g. [MIT Study](https://arxiv.org/abs/2305.xxxx)) lead to superior accuracy.
+2. **Token Equivalence View**: Gains are confounded by inference-time tokens (e.g. [Academic Study: More Tokens, More Reasoning? (2024)](https://arxiv.org/abs/2402.xxxx)).
+
+## Evidence For
+- Separating roles prevents verification bias. Opposing roles reduce hallucinations by 20% on math and logic datasets.
+- State tracking in systems like LangGraph reduces state drift during long research loops.
+
+## Evidence Against
+- Single-agent models using matching inference-time tokens (CoT and self-reflection loops) close the gap with multi-agent workflows.
+- Multi-agent systems introduce 4x to 10x token consumption and latency multipliers.
+
+## Methodological Concerns
+Standard evaluations fail to equalize token budgets or prompt engineering effort. Comparing a cheap single-call baseline to a multi-step loop is an unequal benchmark.
+
+## Proposed Experiments
+1. **Budget-Equalized Comparison**: Match single-agent CoT loops against a multi-agent debate workflow.
+2. **Ablation of Specialized Roles**: Measure performance delta of researcher-analyst-writer vs generalist agent.
+3. **Complexity-Based Routing**: Reserves multi-agent workflows only for complex queries.
+
+## Final Judgment
+While multi-agent systems offer robust guardrails and higher structural quality, their raw reasoning improvements are largely a function of increased inference compute (tokens). Significant uncertainties remain regarding cost-effectiveness for simple tasks.</div>
+            </div>
+        </div>
+
+        <footer>
+            Trace details logged to <code style="background: rgba(255,255,255,0.05); padding: 3px 6px; border-radius: 4px;">reports/trace_multi_agent.json</code>
+        </footer>
+    </div>
+</body>
+</html>
